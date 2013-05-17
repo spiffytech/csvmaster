@@ -1,7 +1,6 @@
 package main
 
 import (
-    //"bufio"
     "encoding/csv"
     "flag"
     "fmt"
@@ -44,13 +43,7 @@ func main() {
     lines := strings.Split(string(bytes), "\n")
 
     csvWriter := csv.NewWriter(os.Stdout)
-    outSepStr := `'` + *outputJoiner + `'`
-    outSepRunes, err := strconv.Unquote(outSepStr)
-    if err != nil {
-        panic(err)
-    }
-    outSepRune := ([]rune(outSepRunes))[0]
-    csvWriter.Comma = outSepRune
+    csvWriter.Comma = getSeparator(*outputJoiner)
 
     for _, line := range lines {
         fields, err := processLine(line)
@@ -91,14 +84,8 @@ func processLine(line string) ([]string, error) {
     sepString := *separator
     _ = utf8.DecodeRuneInString
     _ = sepString
-    sepString = `'` + sepString + `'`
-    sepRunes, err := strconv.Unquote(sepString)
-    if err != nil {
-        panic(err)
-    }
-    sepRune := ([]rune(sepRunes))[0]
 
-    csvReader.Comma = rune(sepRune)
+    csvReader.Comma = getSeparator(sepString)
 
     fields, err := csvReader.Read()
     if err != nil {
@@ -112,4 +99,24 @@ func processLine(line string) ([]string, error) {
     }
 
     return fields, nil
+}
+
+func getSeparator(sepString string) (sepRune rune) {
+    sepString = `'` + sepString + `'`
+    sepRunes, err := strconv.Unquote(sepString)
+    if err != nil {
+        if err.Error() == "invalid syntax" {  // Single quote used as separator. No idea why someone would want this, but it doesn't hurt to support it
+            sepString = `"` + sepString + `"`
+            sepRunes, err = strconv.Unquote(sepString)
+            if err != nil {
+                panic(err)
+            }
+
+        } else {
+            panic(err)
+        }
+    }
+    sepRune = ([]rune(sepRunes))[0]
+
+    return sepRune
 }
