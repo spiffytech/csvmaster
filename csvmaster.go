@@ -1,11 +1,12 @@
 package main
 
 import (
+    "bufio"
     "encoding/csv"
     "flag"
     "fmt"
     "io"
-    "io/ioutil"
+    //"io/ioutil"
     "os"
     "strconv"
     "strings"
@@ -23,6 +24,7 @@ func main() {
 
     var fieldNums []int
 
+    // Identify the numbers you want to print out
     if *fieldNumsRaw != "" {
         for _, numStr := range strings.Split(*fieldNumsRaw, ",") {
             numStr := strings.TrimSpace(numStr)
@@ -34,18 +36,19 @@ func main() {
         }
     }
 
-    // TODO: Make this stream from stdin, and also stream from a file
-    bytes, err := ioutil.ReadAll(os.Stdin)
-    if err != nil {
-        panic(err)
-    }
-
-    lines := strings.Split(string(bytes), "\n")
-
     csvWriter := csv.NewWriter(os.Stdout)
     csvWriter.Comma = getSeparator(*outSep)
 
-    for _, line := range lines {
+    stdInReader := bufio.NewReader(os.Stdin)
+    for {
+        line, err := stdInReader.ReadString('\n')
+        if err != nil {
+            if err == io.EOF {
+                break
+            }
+            panic(err)
+        }
+
         fields, err := processLine(line)
         if err != nil {
             if err == io.EOF {
