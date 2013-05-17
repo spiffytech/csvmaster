@@ -1,13 +1,5 @@
 package main
 
-/*
-    TODO:
-        - Read stdin line by line instead of all at once ( http://stackoverflow.com/questions/12363030/read-from-initial-stdin-in-go )
-        - Make it use the CSV writer to write out the stuff instead of println
-        - Use flag parsing to determine which field(s) to print out
-        - Allow writing out the data with a different delimiter than what it came in with
-*/
-
 import (
     //"bufio"
     "encoding/csv"
@@ -52,6 +44,13 @@ func main() {
     lines := strings.Split(string(bytes), "\n")
 
     csvWriter := csv.NewWriter(os.Stdout)
+    outSepStr := `'` + *outputJoiner + `'`
+    outSepRunes, err := strconv.Unquote(outSepStr)
+    if err != nil {
+        panic(err)
+    }
+    outSepRune := ([]rune(outSepRunes))[0]
+    csvWriter.Comma = outSepRune
 
     for _, line := range lines {
         fields, err := processLine(line)
@@ -83,6 +82,7 @@ func main() {
     if *noPrintRealCSV == false {
         csvWriter.Flush()
     }
+    fmt.Println("Output string is", *outputJoiner)
 }
 
 func processLine(line string) ([]string, error) {
@@ -99,8 +99,15 @@ func processLine(line string) ([]string, error) {
     fmt.Println(size)
     */
     _ = utf8.DecodeRuneInString
+    _ = sepString
+    sepString = `'` + sepString + `'`
+    sepRunes, err := strconv.Unquote(sepString)
+    if err != nil {
+        panic(err)
+    }
+    sepRune := ([]rune(sepRunes))[0]
 
-    csvReader.Comma = rune(sepString[0])
+    csvReader.Comma = rune(sepRune)
 
     fields, err := csvReader.Read()
     if err != nil {
