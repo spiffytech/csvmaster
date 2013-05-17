@@ -6,11 +6,9 @@ import (
     "flag"
     "fmt"
     "io"
-    //"io/ioutil"
     "os"
     "strconv"
     "strings"
-    "unicode/utf8"
 )
 
 var inSep = flag.String("in-sep", ",", "Single character field separator used by your input")
@@ -98,8 +96,6 @@ func processLine(line string) ([]string, error) {
     csvReader.LazyQuotes = true
 
     sepString := *inSep
-    _ = utf8.DecodeRuneInString
-    _ = sepString
 
     csvReader.Comma = getSeparator(sepString)
 
