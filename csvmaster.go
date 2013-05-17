@@ -82,7 +82,6 @@ func main() {
     if *noPrintRealCSV == false {
         csvWriter.Flush()
     }
-    fmt.Println("Output string is", *outputJoiner)
 }
 
 func processLine(line string) ([]string, error) {
@@ -90,14 +89,6 @@ func processLine(line string) ([]string, error) {
     csvReader := csv.NewReader(strReader)
 
     sepString := *separator
-    /*
-    fmt.Println("Separator is", string(sepString[0]))
-    fmt.Println("'", rune(sepString[0]), "'")
-    fmt.Println("'", string(rune("\t"[0])), "'")
-    r, size := utf8.DecodeRuneInString(sepString)
-    fmt.Println("'", string(r), "'")
-    fmt.Println(size)
-    */
     _ = utf8.DecodeRuneInString
     _ = sepString
     sepString = `'` + sepString + `'`
@@ -114,6 +105,8 @@ func processLine(line string) ([]string, error) {
         if err == io.EOF {
             return nil, io.EOF
         } else {
+            fmt.Println("Error in the following line:")
+            fmt.Println(line)
             panic(err)
         }
     }
