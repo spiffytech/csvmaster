@@ -12,11 +12,11 @@ import (
     "unicode/utf8"
 )
 
-var separator = flag.String("separator", ",", "Single character to be used as a separator between fields")
-var fieldNumsRaw = flag.String("fieldNums", "", "Comma-separated list of field indexes (starting at 0) to print to the command line")
+var inSep = flag.String("in-sep", ",", "Single character field separator used by your input")
+var outSep = flag.String("out-sep", ",", "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
 
-var noPrintRealCSV = flag.Bool("noPrintCSV", false, "Program defaults to printing valid, quoted, well-formatted CSV. If this flag is supplied, output is returned as a string joined by outJoinStr. noPrintCSV is assumed to imply you want to pass the output to naive tools like cut or awk.")
-var outputJoiner = flag.String("outJoinStr", ",", "Separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
+var fieldNumsRaw = flag.String("fieldNums", "", "Comma-separated list of field indexes (starting at 0) to print to the command line")
+var noRFC = flag.Bool("no-rfc", false, "Program defaults to printing RFC 4180-compliant, quoted, well-formatted CSV. If this flag is supplied, output is returned as a string naively joined by --out-sep. --no-rfc is assumed to imply you want to pass the output to naive tools like cut or awk, and in that case, it is recommended that you select an --out-sep that is unlikely to be in youc content, such as a pipe or a backtick.")
 
 func main() {
     flag.Parse()
@@ -43,7 +43,7 @@ func main() {
     lines := strings.Split(string(bytes), "\n")
 
     csvWriter := csv.NewWriter(os.Stdout)
-    csvWriter.Comma = getSeparator(*outputJoiner)
+    csvWriter.Comma = getSeparator(*outSep)
 
     for _, line := range lines {
         fields, err := processLine(line)
@@ -66,13 +66,13 @@ func main() {
             }
         }
 
-        if *noPrintRealCSV == false {
+        if *noRFC == false {
             csvWriter.Write(toPrint)
         } else {
-            fmt.Println(strings.Join(toPrint, *outputJoiner))
+            fmt.Println(strings.Join(toPrint, *outSep))
         }
     }
-    if *noPrintRealCSV == false {
+    if *noRFC == false {
         csvWriter.Flush()
     }
 }
@@ -80,8 +80,9 @@ func main() {
 func processLine(line string) ([]string, error) {
     strReader := strings.NewReader(line)
     csvReader := csv.NewReader(strReader)
+    csvReader.LazyQuotes = true
 
-    sepString := *separator
+    sepString := *inSep
     _ = utf8.DecodeRuneInString
     _ = sepString
 
@@ -105,7 +106,7 @@ func getSeparator(sepString string) (sepRune rune) {
     sepString = `'` + sepString + `'`
     sepRunes, err := strconv.Unquote(sepString)
     if err != nil {
-        if err.Error() == "invalid syntax" {  // Single quote used as separator. No idea why someone would want this, but it doesn't hurt to support it
+        if err.Error() == "invalid syntax" {  // Single quote was used as separator. No idea why someone would want this, but it doesn't hurt to support it
             sepString = `"` + sepString + `"`
             sepRunes, err = strconv.Unquote(sepString)
             if err != nil {
