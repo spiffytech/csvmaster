@@ -1,0 +1,12 @@
+numGroups	address_id	email_address
+2	563656	example@example.com
+2	604980	example@example.com
+2	606496	example'@example.com
+2	606496	example"@example.com
+# bogus line
+2	606496	"example@
+example.com"
+2	606496	"example"@
+example.com"
+2	606496
+2	542494	example@example.com
