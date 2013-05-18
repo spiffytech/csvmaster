@@ -11,7 +11,6 @@ import (
     "strings"
 )
 
-// TODO: Add license
 // TODO: Support values containing newlines
 // TODO: Add support for specifying fields by name instead of just number
 // TODO: Handle comments, empty lines
@@ -30,6 +29,7 @@ func main() {
     var fieldNums []int
 
     // Identify the numbers you want to print out
+    *fieldNumsRaw = strings.Trim(*fieldNumsRaw, ",")
     if *fieldNumsRaw != "" {
         for _, numStr := range strings.Split(*fieldNumsRaw, ",") {
             numStr := strings.TrimSpace(numStr)
@@ -64,6 +64,11 @@ func main() {
             panic(err)
         }
 
+        if strings.TrimSpace(line) == "" {
+            fmt.Println(line)
+            continue
+        }
+
         fields, err := processLine(line)
         if err != nil {
             if err == io.EOF {
@@ -74,13 +79,17 @@ func main() {
         }
 
         var toPrint []string
-        if *fieldNumsRaw == "" {
+        if *fieldNumsRaw == "" {  // Print all fields
             for i, _ := range fields {
                 toPrint = append(toPrint, fields[i])
             }
         } else {
             for _, num := range fieldNums {
-                toPrint = append(toPrint, fields[num])
+                if num > len(fields) - 1 {
+                    toPrint = append(toPrint, "")  // Append _something_, so printing columns out of order preserves the column index:value mapping in all columns. I.e., --field-nums=1,2,0 on a 2-column line will print "a,,b" so you always know your knew third column has certain content
+                } else {
+                    toPrint = append(toPrint, fields[num])
+                }
             }
         }
 
