@@ -3,6 +3,7 @@ package main
 import (
     "bufio"
     "encoding/csv"
+    "errors"
     "flag"
     "fmt"
     "io"
@@ -13,8 +14,9 @@ import (
 
 const nilCommentRune = "TOTALLYNOTACOMMENTCHAR"
 
-// TODO: Support values containing newlines
+// TODO: Do I need to have processLine() at all? Can I just use csvReader.Read on the buffer?
 // TODO: Add support for specifying fields by field header name instead of just number
+// TODO: check ReadRuneFromString instead of existing technique
 
 var inSep = flag.String("in-sep", ",", "Single character field separator used by your input")
 var outSep = flag.String("out-sep", ",", "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
@@ -57,6 +59,7 @@ func main() {
 
         reader = bufio.NewReader(f)
     }
+
     for {
         line, err := reader.ReadString('\n')
         if err != nil {
@@ -71,10 +74,22 @@ func main() {
             continue
         }
 
-        fields, err := processLine(line)
+        fields, err := processLine(line, false)
         if err != nil {
             if err == io.EOF {
                 continue  // Since it's only one line, and not the whole file, it's a bogus EOF that happens when e.g. your line starts with a comment. File EOF is handled above.
+            } else if err.Error() == "Incomplete value" {  // Handles values containing newlines
+                moreLine, err := reader.ReadString('\n')
+                if err != nil {
+                    panic(err)
+                }
+                line += moreLine
+                //moreLine, err = reader.ReadString('\n')
+                //if err != nil {
+                //    panic(err)
+                //}
+                //line += moreLine
+                fields, err = processLine(line, false)
             } else {
                 panic(err)
             }
@@ -106,22 +121,26 @@ func main() {
     }
 }
 
-func processLine(line string) ([]string, error) {
+func processLine(line string, lazyQuotes bool) ([]string, error) {
     strReader := strings.NewReader(line)
     csvReader := csv.NewReader(strReader)
-    csvReader.LazyQuotes = true
+    csvReader.LazyQuotes = lazyQuotes
+    csvReader.TrailingComma = true
     if *commentRune != nilCommentRune {
         csvReader.Comment = ([]rune(*commentRune))[0]
     }
 
     sepString := *inSep
-
     csvReader.Comma = getSeparator(sepString)
 
     fields, err := csvReader.Read()
     if err != nil {
         if err == io.EOF {
             return nil, io.EOF
+        } else if strings.Contains(err.Error(), "in non-quoted-field") {  // Field isn't quoted, but contains quotes
+            return processLine(line, true)
+        } else if strings.Contains(err.Error(), `extraneous " in field`) {  // Field is quoted and ends with a newline that's part of the value
+            return nil, errors.New("Incomplete value")
         } else {
             fmt.Println("Error in the following line:")
             fmt.Println(line)
