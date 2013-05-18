@@ -3,7 +3,6 @@ package main
 import (
     "bufio"
     "encoding/csv"
-    "errors"
     "flag"
     "fmt"
     "io"
@@ -14,7 +13,6 @@ import (
 
 const nilCommentRune = "TOTALLYNOTACOMMENTCHAR"
 
-// TODO: Do I need to have processLine() at all? Can I just use csvReader.Read on the buffer?
 // TODO: Add support for specifying fields by field header name instead of just number
 // TODO: check ReadRuneFromString instead of existing technique
 
@@ -45,9 +43,6 @@ func main() {
         }
     }
 
-    csvWriter := csv.NewWriter(os.Stdout)
-    csvWriter.Comma = getSeparator(*outSep)
-
     var reader *bufio.Reader
     if *filename == "" {
         reader = bufio.NewReader(os.Stdin)
@@ -60,39 +55,25 @@ func main() {
         reader = bufio.NewReader(f)
     }
 
+    csvReader := csv.NewReader(reader)
+    csvReader.LazyQuotes = true
+    csvReader.TrailingComma = true
+    csvReader.Comma = getSeparator(*inSep)
+    csvReader.FieldsPerRecord = -1
+    if *commentRune != nilCommentRune {
+        csvReader.Comment = ([]rune(*commentRune))[0]
+    }
+
+    csvWriter := csv.NewWriter(os.Stdout)
+    csvWriter.Comma = getSeparator(*outSep)
+
     for {
-        line, err := reader.ReadString('\n')
+        fields, err := csvReader.Read()
         if err != nil {
             if err == io.EOF {
                 break
             }
             panic(err)
-        }
-
-        if strings.TrimSpace(line) == "" {
-            fmt.Println(line)
-            continue
-        }
-
-        fields, err := processLine(line, false)
-        if err != nil {
-            if err == io.EOF {
-                continue  // Since it's only one line, and not the whole file, it's a bogus EOF that happens when e.g. your line starts with a comment. File EOF is handled above.
-            } else if err.Error() == "Incomplete value" {  // Handles values containing newlines
-                moreLine, err := reader.ReadString('\n')
-                if err != nil {
-                    panic(err)
-                }
-                line += moreLine
-                //moreLine, err = reader.ReadString('\n')
-                //if err != nil {
-                //    panic(err)
-                //}
-                //line += moreLine
-                fields, err = processLine(line, false)
-            } else {
-                panic(err)
-            }
         }
 
         var toPrint []string
@@ -121,35 +102,6 @@ func main() {
     }
 }
 
-func processLine(line string, lazyQuotes bool) ([]string, error) {
-    strReader := strings.NewReader(line)
-    csvReader := csv.NewReader(strReader)
-    csvReader.LazyQuotes = lazyQuotes
-    csvReader.TrailingComma = true
-    if *commentRune != nilCommentRune {
-        csvReader.Comment = ([]rune(*commentRune))[0]
-    }
-
-    sepString := *inSep
-    csvReader.Comma = getSeparator(sepString)
-
-    fields, err := csvReader.Read()
-    if err != nil {
-        if err == io.EOF {
-            return nil, io.EOF
-        } else if strings.Contains(err.Error(), "in non-quoted-field") {  // Field isn't quoted, but contains quotes
-            return processLine(line, true)
-        } else if strings.Contains(err.Error(), `extraneous " in field`) {  // Field is quoted and ends with a newline that's part of the value
-            return nil, errors.New("Incomplete value")
-        } else {
-            fmt.Println("Error in the following line:")
-            fmt.Println(line)
-            panic(err)
-        }
-    }
-
-    return fields, nil
-}
 
 func getSeparator(sepString string) (sepRune rune) {
     sepString = `'` + sepString + `'`
