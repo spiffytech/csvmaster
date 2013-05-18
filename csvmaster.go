@@ -11,12 +11,14 @@ import (
     "strings"
 )
 
+const nilCommentRune = "TOTALLYNOTACOMMENTCHAR"
+
 // TODO: Support values containing newlines
-// TODO: Add support for specifying fields by name instead of just number
-// TODO: Handle comments, empty lines
+// TODO: Add support for specifying fields by field header name instead of just number
 
 var inSep = flag.String("in-sep", ",", "Single character field separator used by your input")
 var outSep = flag.String("out-sep", ",", "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
+var commentRune = flag.String("comment-char", nilCommentRune, "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
 
 var filename = flag.String("filename", "", "File to read from. If not specified, program reads from stdin.")
 
@@ -72,7 +74,7 @@ func main() {
         fields, err := processLine(line)
         if err != nil {
             if err == io.EOF {
-                break
+                continue  // Since it's only one line, and not the whole file, it's a bogus EOF that happens when e.g. your line starts with a comment. File EOF is handled above.
             } else {
                 panic(err)
             }
@@ -108,6 +110,9 @@ func processLine(line string) ([]string, error) {
     strReader := strings.NewReader(line)
     csvReader := csv.NewReader(strReader)
     csvReader.LazyQuotes = true
+    if *commentRune != nilCommentRune {
+        csvReader.Comment = ([]rune(*commentRune))[0]
+    }
 
     sepString := *inSep
 
