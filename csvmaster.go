@@ -21,7 +21,7 @@ var outSep = flag.String("out-sep", ",", "Single-character field separator to us
 
 var filename = flag.String("filename", "", "File to read from. If not specified, program reads from stdin.")
 
-var fieldNumsRaw = flag.String("fieldNums", "", "Comma-separated list of field indexes (starting at 0) to print to the command line")
+var fieldNumsRaw = flag.String("field-nums", "", "Comma-separated list of field indexes (starting at 0) to print to the command line")
 var noRFC = flag.Bool("no-rfc", false, "Program defaults to printing RFC 4180-compliant, quoted, well-formatted CSV. If this flag is supplied, output is returned as a string naively joined by --out-sep. --no-rfc is assumed to imply you want to pass the output to naive tools like cut or awk, and in that case, it is recommended that you select an --out-sep that is unlikely to be in youc content, such as a pipe or a backtick.")
 
 func main() {
