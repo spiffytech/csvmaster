@@ -11,6 +11,11 @@ import (
     "strings"
 )
 
+// TODO: Add license
+// TODO: Support values containing newlines
+// TODO: Add support for specifying fields by name instead of just number
+// TODO: Handle comments, empty lines
+
 var inSep = flag.String("in-sep", ",", "Single character field separator used by your input")
 var outSep = flag.String("out-sep", ",", "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
 
