@@ -20,7 +20,7 @@ var inSep = flag.String("in-sep", ",", "Single character field separator used by
 var outSep = flag.String("out-sep", ",", "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
 var commentRune = flag.String("comment-char", nilCommentRune, "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file.")
 
-var filename = flag.String("filename", "", "File to read from. If not specified, program reads from stdin.")
+var filename = flag.String("file", "", "File to read from. If not specified, program reads from stdin.")
 
 var fieldNumsRaw = flag.String("field-nums", "", "Comma-separated list of field indexes (starting at 0) to print to the command line")
 var noRFC = flag.Bool("no-rfc", false, "Program defaults to printing RFC 4180-compliant, quoted, well-formatted CSV. If this flag is supplied, output is returned as a string naively joined by --out-sep. --no-rfc is assumed to imply you want to pass the output to naive tools like cut or awk, and in that case, it is recommended that you select an --out-sep that is unlikely to be in youc content, such as a pipe or a backtick.")
