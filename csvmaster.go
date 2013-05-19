@@ -78,9 +78,7 @@ func main() {
 
         var toPrint []string
         if *fieldNumsRaw == "" {  // Print all fields
-            for i, _ := range fields {
-                toPrint = append(toPrint, fields[i])
-            }
+            toPrint = fields
         } else {
             for _, num := range fieldNums {
                 if num > len(fields) - 1 {
