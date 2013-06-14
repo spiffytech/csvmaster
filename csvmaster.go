@@ -9,14 +9,14 @@ import (
     "os"
     "strconv"
     "strings"
+    "syscall"
 )
 
 const NILCOMMENTRUNE = "TOTALLYNOTACOMMENTCHAR"
-const VERSION = 1.1
+const VERSION = "1.1"
 
 // TODO: Add support for specifying fields by field header name instead of just number
 // TODO: check ReadRuneFromString instead of existing technique
-// TODO: Print version
 // TODO: Publish binaries
 // TODO: Include test suite
 // TODO: Accept filename without --filename flag
@@ -85,8 +85,8 @@ func main() {
     flag.Parse()
 
     if printVersion == true {
-        fmt.Fprintf(os.Stdout, "csvmaster version %d, made by spiffytech. http://github.com/spiffytech/csvmaster", VERSION)
-        return
+        fmt.Fprintf(os.Stdout, "csvmaster version %s, made by spiffytech. http://github.com/spiffytech/csvmaster\n", VERSION)
+        syscall.Exit(0)
     }
 
     var fieldNums []int
