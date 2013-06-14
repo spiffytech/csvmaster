@@ -11,7 +11,8 @@ import (
     "strings"
 )
 
-const nilCommentRune = "TOTALLYNOTACOMMENTCHAR"
+const NILCOMMENTRUNE = "TOTALLYNOTACOMMENTCHAR"
+const VERSION = 1.1
 
 // TODO: Add support for specifying fields by field header name instead of just number
 // TODO: check ReadRuneFromString instead of existing technique
@@ -28,6 +29,8 @@ var filename string
 
 var fieldNumsRaw string
 var noRFC = flag.Bool("no-rfc", false, "Program defaults to printing RFC 4180-compliant, quoted, well-formatted CSV. If this flag is supplied, output is returned as a string naively joined by --out-sep. --no-rfc is assumed to imply you want to pass the output to naive tools like cut or awk, and in that case, it is recommended that you select an --out-sep that is unlikely to be in youc content, such as a pipe or a backtick.")
+
+var printVersion bool
 
 func init() {
     const (
@@ -52,6 +55,11 @@ func init() {
         commentRuneFlagLong = "comment-char"
         commentRuneFlagShort = "c"
         commentRuneDesc = "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file."
+
+        printVersionFlagLong = "version"
+        printVersionFlagShort = "v"
+        printVersionDesc = "Print program version"
+        printVersionDefault = false
     )
 
     flag.StringVar(&filename, filenameFlagLong, "", filenameDesc)
@@ -66,12 +74,20 @@ func init() {
     flag.StringVar(&outSep, outSepFlagLong, outSepDefault, outSepDesc)
     flag.StringVar(&outSep, outSepFlagShort, outSepDefault, outSepDesc)
 
-    flag.StringVar(&commentRune, commentRuneFlagLong, nilCommentRune, commentRuneDesc)
-    flag.StringVar(&commentRune, commentRuneFlagShort, nilCommentRune, commentRuneDesc)
+    flag.StringVar(&commentRune, commentRuneFlagLong, NILCOMMENTRUNE, commentRuneDesc)
+    flag.StringVar(&commentRune, commentRuneFlagShort, NILCOMMENTRUNE, commentRuneDesc)
+
+    flag.BoolVar(&printVersion, printVersionFlagLong, printVersionDefault, printVersionDesc)
+    flag.BoolVar(&printVersion, printVersionFlagShort, printVersionDefault, printVersionDesc)
 }
 
 func main() {
     flag.Parse()
+
+    if printVersion == true {
+        fmt.Fprintf(os.Stdout, "csvmaster version %d, made by spiffytech. http://github.com/spiffytech/csvmaster", VERSION)
+        return
+    }
 
     var fieldNums []int
 
@@ -105,7 +121,7 @@ func main() {
     csvReader.TrailingComma = true
     csvReader.Comma = getSeparator(inSep)
     csvReader.FieldsPerRecord = -1
-    if commentRune != nilCommentRune {
+    if commentRune != NILCOMMENTRUNE {
         csvReader.Comment = ([]rune(commentRune))[0]
     }
 
