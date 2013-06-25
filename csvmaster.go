@@ -42,12 +42,12 @@ func init() {
         fieldNumsRawFlagShort = "F"
         fieldNumsRawDesc =  "Comma-separated list of field indexes (starting at 0) to print to the command line"
 
-        inSepFlagLong = "in-sep"
+        inSepFlagLong = "in"
         inSepFlagShort = "i"
         inSepDesc = "Single character field separator used by your input"
         inSepDefault = ","
 
-        outSepFlagLong = "out-sep"
+        outSepFlagLong = "out"
         outSepFlagShort = "o"
         outSepDesc = "Single-character field separator to use when printing multiple columns in your output. Only valid if outputting something meant to be passed to cut/awk, and not a properly-formatted, quoted CSV file."
         outSepDefault = ","

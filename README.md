@@ -9,16 +9,16 @@ Usage
 ====
 
 To print out select fields:
-`csvm --file=test.csv --field-nums=0,1,2`
+`csvm --file=test.csv --fields=0,1,2`
 
 To print them out with a different separator:
-`csvm --file=test.csv --field-nums=0,1,2 --out-sep='\t'`
+`csvm --file=test.csv --fields=0,1,2 --out='\t'`
 
 To use an input separator that is not a comma
-`csvm --file=test.csv --in-sep='\t' --out-sep=','`
+`csvm --file=test.csv --in='\t' --out=','`
 
 Perhaps you want to actually use `sed`/`awk` to parse your data. This command will let you correctly separate your fields, then write out an unquoted CSV with a separator you can more safely parse with stardard command-line tools.
-`cat test.csv | csvm --out-sep='|' --no-rfc`
+`cat test.csv | csvm --out='|' --no-rfc`
 
 Some lines may be commented out. You may ignore these lines:
-`cat test.csv | csvm --out-sep='|' --comment-char='#'`
+`cat test.csv | csvm --out='|' --comment-char='#'`
