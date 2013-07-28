@@ -1,7 +1,7 @@
 Introduction
 ====
 
-csvmaster is a tool for working with CSV files on the command line. Why would you want that when you have `cut` and `awk`? Because `cut` and `awk` don't have any idea what to do with quoed fields. Because `sed` and `awk` can't distinguish between a field separator char that actually separates fields, and one that's inside a field's value. Because if you change the delimeter with those tools, they don't know how to quote fields containing the new delimiter.
+csvmaster is a tool for working with CSV files on the command line. Why would you want that when you have `cut` and `awk`? Because `cut` and `awk` don't have any idea what to do with quoted fields. Because `sed` and `awk` can't distinguish between a field separator char that actually separates fields, and one that's inside a field's value. Because if you change the delimeter with those tools, they don't know how to quote fields containing the new delimiter.
 
 csvmaster fixes all of that by using an actual CSV parsing engine for reading, writing, and field splitting.
 
@@ -22,3 +22,11 @@ Perhaps you want to actually use `sed`/`awk` to parse your data. This command wi
 
 Some lines may be commented out. You may ignore these lines:
 `cat test.csv | csvm --out='|' --comment-char='#'`
+
+
+Building
+====
+
+[Install Go](http://golang.org/doc/install#install)
+
+`go build -o csvm csvmaster.go`
