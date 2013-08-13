@@ -24,6 +24,17 @@ Some lines may be commented out. You may ignore these lines:
 `cat test.csv | csvm --out='|' --comment-char='#'`
 
 
+Short flags
+-----------
+
+csvm also accepts short flags:
+
+- -f = filename
+- -F = field numbers
+- -i = input separator
+- -o = output separator
+
+
 Building
 ====
 
