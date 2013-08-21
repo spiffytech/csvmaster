@@ -105,6 +105,13 @@ func main() {
     }
 
     var reader *bufio.Reader
+
+    if filename == "" {
+        args := flag.Args()
+        if len(args) > 0 {
+            filename = args[0]
+        }
+    }
     if filename == "" {
         reader = bufio.NewReader(os.Stdin)
     } else {

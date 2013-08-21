@@ -9,10 +9,10 @@ Usage
 ====
 
 To print out select fields:
-`csvm --file=test.csv --fields=0,1,2`
+`csvm --fields=0,1,2 test.csv`
 
 To print them out with a different separator:
-`csvm --file=test.csv --fields=0,1,2 --out='\t'`
+`csvm --fields=0,1,2 --out='\t' test.csv`
 
 To use an input separator that is not a comma
 `csvm --file=test.csv --in='\t' --out=','`
