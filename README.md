@@ -35,6 +35,16 @@ csvm also accepts short flags:
 - -o = output separator
 
 
+Download
+====
+
+v1.1 for:
+
+- [Linux x86](https://github.com/spiffytech/csvmaster/releases/download/v1.1/csvm_linux_x86)
+- [Linux x64](https://github.com/spiffytech/csvmaster/releases/download/v1.1/csvm_linux_x64)
+- [Source tarball](https://github.com/spiffytech/csvmaster/archive/v1.1.tar.gz)
+
+
 Building
 ====
 
